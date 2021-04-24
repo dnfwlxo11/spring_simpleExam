@@ -18,22 +18,18 @@ import java.util.Map;
 import java.util.Optional;
 
 public class JdbcTemplateMemberRepository implements MemberRepository {
-
     private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
     public JdbcTemplateMemberRepository(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+        jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     @Override
     public Member save(Member member) {
         SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
         jdbcInsert.withTableName("member").usingGeneratedKeyColumns("id");
-
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("name", member.getName());
-
         Number key = jdbcInsert.executeAndReturnKey(new
                 MapSqlParameterSource(parameters));
         member.setId(key.longValue());
@@ -50,10 +46,10 @@ public class JdbcTemplateMemberRepository implements MemberRepository {
     public List<Member> findAll() {
         return jdbcTemplate.query("select * from member", memberRowMapper());
     }
+
     @Override
     public Optional<Member> findByName(String name) {
         List<Member> result = jdbcTemplate.query("select * from member where name = ?", memberRowMapper(), name);
-
         return result.stream().findAny();
     }
 
